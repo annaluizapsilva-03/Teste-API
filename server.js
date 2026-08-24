@@ -106,7 +106,17 @@ app.get('/produtos/:id', (req, res) => {
         res.status(404).send ('Deu ruim -- Produto não existe')
     }
 })
+app.delete('/produtos/:id', (req, res) => {
+    const id = parseInt (req.params.id)
+     const index = produtos.findIndex (prod => prod.id === id)
+    if (index >= 0) {
+      const produtoExcluido = produtos.splice(index, 1)
+        res.json({mensagem:'Produto excluido com sucesso',produto: produtoExcluido[0]})
+    } else {
+        res.status(404).send ('Nao existe produto para deletar')
+    }
 
+  })
 
 const port = 3000
 app.listen (port, ()=>{
