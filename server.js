@@ -88,10 +88,6 @@ const produtos = [
   }
 ]
 
-app.get('/', (req, res) => {
-    res.send (`Olá estranho.`)
-})
-
 app.get('/produtos', (req, res) => {
     res.json(produtos)
 })
