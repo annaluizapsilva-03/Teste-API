@@ -1,0 +1,328 @@
+{
+  "info": {
+    "name": "API-Produtos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://ana-api.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "novoProdutoId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - GET /produtos - Consultar todos os produtos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/produtos",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Resposta deve ser um array\", function () {",
+              "    const dados = pm.response.json();",
+              "    pm.expect(dados).to.be.an(\"array\");",
+              "});",
+              "",
+              "pm.test(\"Array deve conter pelo menos 5 produtos\", function () {",
+              "    const dados = pm.response.json();",
+              "    pm.expect(dados.length).to.be.at.least(5);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - GET /produtos/:id - Consultar produto existente",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/produtos/1",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Produto deve possuir os atributos esperados\", function () {",
+              "    const produto = pm.response.json();",
+              "    pm.expect(produto).to.have.property(\"id\");",
+              "    pm.expect(produto).to.have.property(\"descricao\");",
+              "    pm.expect(produto).to.have.property(\"preco\");",
+              "    pm.expect(produto).to.have.property(\"categoria\");",
+              "    pm.expect(produto).to.have.property(\"estoque\");",
+              "});",
+              "",
+              "pm.test(\"id deve ser 1\", function () {",
+              "    const produto = pm.response.json();",
+              "    pm.expect(produto.id).to.eql(1);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - GET /produtos/:id - Consultar produto inexistente",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/produtos/9999",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Resposta deve conter mensagem de erro\", function () {",
+              "    const dados = pm.response.json();",
+              "    pm.expect(dados).to.have.property(\"mensagem\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - POST /produtos - Cadastrar novo produto",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/produtos",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"descricao\": \"SSD 1TB NVMe\",\n  \"preco\": 399.90,\n  \"categoria\": \"Armazenamento\",\n  \"estoque\": 30\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Produto criado deve ter id atribuído\", function () {",
+              "    const produto = pm.response.json();",
+              "    pm.expect(produto).to.have.property(\"id\");",
+              "    pm.collectionVariables.set(\"novoProdutoId\", produto.id);",
+              "});",
+              "",
+              "pm.test(\"Produto criado deve ter os dados enviados\", function () {",
+              "    const produto = pm.response.json();",
+              "    pm.expect(produto.descricao).to.eql(\"SSD 1TB NVMe\");",
+              "    pm.expect(produto.preco).to.eql(399.90);",
+              "    pm.expect(produto.categoria).to.eql(\"Armazenamento\");",
+              "    pm.expect(produto.estoque).to.eql(30);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - GET /produtos/:id - Consultar produto recém-cadastrado",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/produtos/{{novoProdutoId}}",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Produto encontrado deve ser o recém-cadastrado\", function () {",
+              "    const produto = pm.response.json();",
+              "    pm.expect(produto.descricao).to.eql(\"SSD 1TB NVMe\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - PUT /produtos/:id - Alterar produto existente",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/produtos/{{novoProdutoId}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"descricao\": \"SSD 2TB NVMe\",\n  \"preco\": 699.90,\n  \"categoria\": \"Armazenamento\",\n  \"estoque\": 15\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Produto alterado deve ter os novos dados\", function () {",
+              "    const produto = pm.response.json();",
+              "    pm.expect(produto.descricao).to.eql(\"SSD 2TB NVMe\");",
+              "    pm.expect(produto.preco).to.eql(699.90);",
+              "    pm.expect(produto.estoque).to.eql(15);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - GET /produtos/:id - Verificar alteração realizada",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/produtos/{{novoProdutoId}}",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Alteração deve estar persistida\", function () {",
+              "    const produto = pm.response.json();",
+              "    pm.expect(produto.descricao).to.eql(\"SSD 2TB NVMe\");",
+              "    pm.expect(produto.preco).to.eql(699.90);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - PUT /produtos/:id - Tentar alterar produto inexistente",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/produtos/9999",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"descricao\": \"Produto Fantasma\",\n  \"preco\": 0,\n  \"categoria\": \"Nenhuma\",\n  \"estoque\": 0\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Resposta deve conter mensagem de erro\", function () {",
+              "    const dados = pm.response.json();",
+              "    pm.expect(dados).to.have.property(\"mensagem\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - DELETE /produtos/:id - Excluir produto existente",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/produtos/{{novoProdutoId}}",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 204\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - GET /produtos/:id - Verificar que produto excluído não existe",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/produtos/{{novoProdutoId}}",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status deve ser 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Produto excluído não deve mais existir\", function () {",
+              "    const dados = pm.response.json();",
+              "    pm.expect(dados).to.have.property(\"mensagem\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}
